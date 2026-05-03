@@ -11,13 +11,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
 
-// https://stackoverflow.com/q/53502244/16885569
-// I found four ways to make the system not kill the stopped foreground service: e.g. when
-// the player is paused:
-// 1 - Use the solution below - hacky;
-// 2 - Do not call stopForeground but provide a button to dismiss the notification - bad UX;
-// 3 - Lower the targetSdk (e.g. to 23) - security concerns;
-// 4 - Host the service in a separate process - overkill and pathetic.
 abstract class InvincibleService : Service() {
     protected val handler = Handler(Looper.getMainLooper())
     protected abstract val isInvincibilityEnabled: Boolean
@@ -26,6 +19,10 @@ abstract class InvincibleService : Service() {
 
     private val isAllowedToStartForegroundServices: Boolean
         get() = !isAtLeastAndroid12 || isIgnoringBatteryOptimizations
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase.wrapWithLocale())
+    }
 
     override fun onBind(intent: Intent?): Binder? {
         invincibility?.stop()
