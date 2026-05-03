@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "**" ] # Automatically starts on EVERY commit published to ANY branch
   pull_request:
-    branches:[ "main" ]
+    branches: [ "main" ]
   workflow_dispatch: # Allows you to run the build manually from the Actions tab
 
 jobs:
