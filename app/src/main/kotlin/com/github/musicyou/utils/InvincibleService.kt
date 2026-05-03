@@ -20,10 +20,6 @@ abstract class InvincibleService : Service() {
     private val isAllowedToStartForegroundServices: Boolean
         get() = !isAtLeastAndroid12 || isIgnoringBatteryOptimizations
 
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(newBase.wrapWithLocale())
-    }
-
     override fun onBind(intent: Intent?): Binder? {
         invincibility?.stop()
         invincibility = null
