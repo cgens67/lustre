@@ -2,6 +2,7 @@ package com.github.musicyou.service
 
 import android.content.ComponentName
 import android.content.ContentResolver
+import android.content.Context
 import android.content.ServiceConnection
 import android.media.session.MediaSession
 import android.net.Uri
@@ -26,6 +27,7 @@ import com.github.musicyou.utils.forcePlayAtIndex
 import com.github.musicyou.utils.forceSeekToNext
 import com.github.musicyou.utils.forceSeekToPrevious
 import com.github.musicyou.utils.intent
+import com.github.musicyou.utils.wrapWithLocale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -40,6 +42,10 @@ class PlayerMediaBrowserService : MediaBrowserService(), ServiceConnection {
     private var lastSongs = emptyList<Song>()
 
     private var bound = false
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase.wrapWithLocale())
+    }
 
     override fun onDestroy() {
         if (bound) unbindService(this)
