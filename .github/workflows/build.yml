@@ -2,10 +2,10 @@ name: Build Universal APK
 
 on:
   push:
-    branches: [ "**" ] # Automatically starts on EVERY commit published to ANY branch
+    branches: [ "**" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch: # Allows you to run the build manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   build:
@@ -32,6 +32,14 @@ jobs:
 
       - name: Build Universal Release APK
         run: ./gradlew assembleRelease --no-daemon
+
+      - name: Sign APK
+        run: |
+          keytool -genkey -v -keystore release.keystore -alias release -storepass password -keypass password -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=MusicYou,O=MusicYou,C=US"
+          BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* | tail -1)
+          for apk in app/build/outputs/apk/release/*.apk; do
+            $BUILD_TOOLS_DIR/apksigner sign --ks release.keystore --ks-pass pass:password --key-pass pass:password "$apk"
+          done
 
       - name: Upload Universal APK Artifact
         uses: actions/upload-artifact@v4
