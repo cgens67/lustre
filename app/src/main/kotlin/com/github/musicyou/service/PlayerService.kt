@@ -104,6 +104,7 @@ import com.github.musicyou.utils.skipSilenceKey
 import com.github.musicyou.utils.timer
 import com.github.musicyou.utils.trackLoopEnabledKey
 import com.github.musicyou.utils.volumeNormalizationKey
+import com.github.musicyou.utils.wrapWithLocale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -209,6 +210,10 @@ class PlayerService : InvincibleService(), Player.Listener, PlaybackStatsListene
             started = SharingStarted.Eagerly,
             initialValue = false
         )
+
+    private fun localizedString(resId: Int, vararg formatArgs: Any): String {
+        return baseContext.wrapWithLocale().getString(resId, *formatArgs)
+    }
 
     override fun onBind(intent: Intent?): AndroidBinder {
         super.onBind(intent)
@@ -774,7 +779,7 @@ class PlayerService : InvincibleService(), Player.Listener, PlaybackStatsListene
                 createNotificationChannel(
                     NotificationChannel(
                         NOTIFICATION_CHANNEL_ID,
-                        getString(R.string.now_playing),
+                        localizedString(R.string.now_playing),
                         NotificationManager.IMPORTANCE_LOW
                     ).apply {
                         setSound(null, null)
@@ -788,7 +793,7 @@ class PlayerService : InvincibleService(), Player.Listener, PlaybackStatsListene
                 createNotificationChannel(
                     NotificationChannel(
                         SLEEP_TIMER_NOTIFICATION_CHANNEL_ID,
-                        getString(R.string.sleep_timer),
+                        localizedString(R.string.sleep_timer),
                         NotificationManager.IMPORTANCE_LOW
                     ).apply {
                         setSound(null, null)
@@ -949,7 +954,7 @@ class PlayerService : InvincibleService(), Player.Listener, PlaybackStatsListene
             timerJob = coroutineScope.timer(delayMillis) {
                 val notification = NotificationCompat
                     .Builder(this@PlayerService, SLEEP_TIMER_NOTIFICATION_CHANNEL_ID)
-                    .setContentTitle(getString(R.string.sleep_timer_ended))
+                    .setContentTitle(localizedString(R.string.sleep_timer_ended))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setAutoCancel(true)
                     .setOnlyAlertOnce(true)
