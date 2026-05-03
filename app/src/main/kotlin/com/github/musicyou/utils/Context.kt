@@ -5,9 +5,12 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.os.Build
 import android.os.PowerManager
 import android.widget.Toast
 import androidx.core.content.getSystemService
+import java.util.Locale
 
 inline fun <reified T> Context.intent(): Intent =
     Intent(this, T::class.java)
@@ -38,3 +41,19 @@ val Context.isIgnoringBatteryOptimizations: Boolean
     }
 
 fun Context.toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
+fun Context.wrapWithLocale(): Context {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        return this
+    }
+    val lang = getSharedPreferences("preferences", Context.MODE_PRIVATE).getString("app_language", "")
+    return if (!lang.isNullOrEmpty()) {
+        val locale = Locale(lang)
+        Locale.setDefault(locale)
+        val config = Configuration(resources.configuration)
+        config.setLocale(locale)
+        createConfigurationContext(config)
+    } else {
+        this
+    }
+}
