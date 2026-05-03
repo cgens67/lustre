@@ -1,7 +1,6 @@
 package com.github.musicyou
 
 import android.app.Application
-import android.content.Context
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -15,16 +14,11 @@ import com.github.musicyou.enums.CoilDiskCacheMaxSize
 import com.github.musicyou.utils.coilDiskCacheMaxSizeKey
 import com.github.musicyou.utils.getEnum
 import com.github.musicyou.utils.preferences
-import com.github.musicyou.utils.wrapWithLocale
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class MainApplication : Application(), SingletonImageLoader.Factory {
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(newBase.wrapWithLocale())
-    }
-
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
