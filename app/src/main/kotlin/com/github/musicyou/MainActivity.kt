@@ -1,6 +1,7 @@
 package com.github.musicyou
 
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.net.Uri
@@ -56,6 +57,7 @@ import com.github.musicyou.ui.styling.AppTheme
 import com.github.musicyou.utils.asMediaItem
 import com.github.musicyou.utils.forcePlay
 import com.github.musicyou.utils.intent
+import com.github.musicyou.utils.wrapWithLocale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -75,6 +77,10 @@ class MainActivity : ComponentActivity() {
 
     private var binder by mutableStateOf<PlayerService.Binder?>(null)
     private var data by mutableStateOf<Uri?>(null)
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase.wrapWithLocale())
+    }
 
     override fun onStart() {
         super.onStart()
