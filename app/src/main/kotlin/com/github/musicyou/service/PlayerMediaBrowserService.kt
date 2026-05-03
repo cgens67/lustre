@@ -2,7 +2,6 @@ package com.github.musicyou.service
 
 import android.content.ComponentName
 import android.content.ContentResolver
-import android.content.Context
 import android.content.ServiceConnection
 import android.media.session.MediaSession
 import android.net.Uri
@@ -43,8 +42,8 @@ class PlayerMediaBrowserService : MediaBrowserService(), ServiceConnection {
 
     private var bound = false
 
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(newBase.wrapWithLocale())
+    private fun localizedString(resId: Int, vararg formatArgs: Any): String {
+        return baseContext.wrapWithLocale().getString(resId, *formatArgs)
     }
 
     override fun onDestroy() {
@@ -135,7 +134,7 @@ class PlayerMediaBrowserService : MediaBrowserService(), ServiceConnection {
         inline get() = BrowserMediaItem(
             BrowserMediaDescription.Builder()
                 .setMediaId(MediaId.SHUFFLE)
-                .setTitle(getString(R.string.shuffle))
+                .setTitle(localizedString(R.string.shuffle))
                 .setIconUri(uriFor(R.drawable.shuffle))
                 .build(),
             BrowserMediaItem.FLAG_PLAYABLE
@@ -145,7 +144,7 @@ class PlayerMediaBrowserService : MediaBrowserService(), ServiceConnection {
         inline get() = BrowserMediaItem(
             BrowserMediaDescription.Builder()
                 .setMediaId(MediaId.SONGS)
-                .setTitle(getString(R.string.songs))
+                .setTitle(localizedString(R.string.songs))
                 .setIconUri(uriFor(R.drawable.musical_notes))
                 .build(),
             BrowserMediaItem.FLAG_BROWSABLE
@@ -156,7 +155,7 @@ class PlayerMediaBrowserService : MediaBrowserService(), ServiceConnection {
         inline get() = BrowserMediaItem(
             BrowserMediaDescription.Builder()
                 .setMediaId(MediaId.PLAYLISTS)
-                .setTitle(getString(R.string.playlists))
+                .setTitle(localizedString(R.string.playlists))
                 .setIconUri(uriFor(R.drawable.playlist))
                 .build(),
             BrowserMediaItem.FLAG_BROWSABLE
@@ -166,7 +165,7 @@ class PlayerMediaBrowserService : MediaBrowserService(), ServiceConnection {
         inline get() = BrowserMediaItem(
             BrowserMediaDescription.Builder()
                 .setMediaId(MediaId.ALBUMS)
-                .setTitle(getString(R.string.albums))
+                .setTitle(localizedString(R.string.albums))
                 .setIconUri(uriFor(R.drawable.disc))
                 .build(),
             BrowserMediaItem.FLAG_BROWSABLE
@@ -176,7 +175,7 @@ class PlayerMediaBrowserService : MediaBrowserService(), ServiceConnection {
         inline get() = BrowserMediaItem(
             BrowserMediaDescription.Builder()
                 .setMediaId(MediaId.FAVORITES)
-                .setTitle(getString(R.string.favorites))
+                .setTitle(localizedString(R.string.favorites))
                 .setIconUri(uriFor(R.drawable.heart))
                 .build(),
             BrowserMediaItem.FLAG_PLAYABLE
@@ -186,7 +185,7 @@ class PlayerMediaBrowserService : MediaBrowserService(), ServiceConnection {
         inline get() = BrowserMediaItem(
             BrowserMediaDescription.Builder()
                 .setMediaId(MediaId.OFFLINE)
-                .setTitle(getString(R.string.offline))
+                .setTitle(localizedString(R.string.offline))
                 .setIconUri(uriFor(R.drawable.offline))
                 .build(),
             BrowserMediaItem.FLAG_PLAYABLE
@@ -208,7 +207,7 @@ class PlayerMediaBrowserService : MediaBrowserService(), ServiceConnection {
             BrowserMediaDescription.Builder()
                 .setMediaId(MediaId.forPlaylist(playlist.id))
                 .setTitle(playlist.name)
-                .setSubtitle("$songCount ${getString(R.string.songs).lowercase()}")
+                .setSubtitle("$songCount ${localizedString(R.string.songs).lowercase()}")
                 .setIconUri(uriFor(R.drawable.playlist))
                 .build(),
             BrowserMediaItem.FLAG_PLAYABLE
