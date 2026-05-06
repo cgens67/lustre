@@ -59,65 +59,67 @@ fun PlayerSettings() {
             .verticalScroll(rememberScrollState())
             .padding(bottom = 16.dp + playerPadding)
     ) {
-        SwitchSettingEntry(
-            title = stringResource(id = R.string.persistent_queue),
-            text = stringResource(id = R.string.persistent_queue_description),
-            icon = Icons.AutoMirrored.Outlined.QueueMusic,
-            isChecked = persistentQueue,
-            onCheckedChange = {
-                persistentQueue = it
-            }
-        )
-
-        if (isAtLeastAndroid6) {
+        SettingsGroup(title = stringResource(id = R.string.player)) {
             SwitchSettingEntry(
-                title = stringResource(id = R.string.resume_playback),
-                text = stringResource(id = R.string.resume_playback_description),
-                icon = Icons.Outlined.Replay,
-                isChecked = resumePlaybackWhenDeviceConnected,
+                title = stringResource(id = R.string.persistent_queue),
+                text = stringResource(id = R.string.persistent_queue_description),
+                icon = Icons.AutoMirrored.Outlined.QueueMusic,
+                isChecked = persistentQueue,
                 onCheckedChange = {
-                    resumePlaybackWhenDeviceConnected = it
+                    persistentQueue = it
+                }
+            )
+
+            if (isAtLeastAndroid6) {
+                SwitchSettingEntry(
+                    title = stringResource(id = R.string.resume_playback),
+                    text = stringResource(id = R.string.resume_playback_description),
+                    icon = Icons.Outlined.Replay,
+                    isChecked = resumePlaybackWhenDeviceConnected,
+                    onCheckedChange = {
+                        resumePlaybackWhenDeviceConnected = it
+                    }
+                )
+            }
+
+            SwitchSettingEntry(
+                title = stringResource(id = R.string.skip_silence),
+                text = stringResource(id = R.string.skip_silence_description),
+                icon = Icons.Outlined.FastForward,
+                isChecked = skipSilence,
+                onCheckedChange = {
+                    skipSilence = it
+                }
+            )
+
+            SwitchSettingEntry(
+                title = stringResource(id = R.string.loudness_normalization),
+                text = stringResource(id = R.string.loudness_normalization_description),
+                icon = Icons.AutoMirrored.Outlined.VolumeUp,
+                isChecked = volumeNormalization,
+                onCheckedChange = {
+                    volumeNormalization = it
+                }
+            )
+
+            SettingsEntry(
+                title = stringResource(id = R.string.equalizer),
+                text = stringResource(id = R.string.equalizer_description),
+                icon = Icons.Outlined.Equalizer,
+                onClick = {
+                    val intent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL).apply {
+                        putExtra(AudioEffect.EXTRA_AUDIO_SESSION, binder?.player?.audioSessionId)
+                        putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
+                        putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
+                    }
+
+                    try {
+                        activityResultLauncher.launch(intent)
+                    } catch (_: ActivityNotFoundException) {
+                        context.toast("Couldn't find an application to equalize audio")
+                    }
                 }
             )
         }
-
-        SwitchSettingEntry(
-            title = stringResource(id = R.string.skip_silence),
-            text = stringResource(id = R.string.skip_silence_description),
-            icon = Icons.Outlined.FastForward,
-            isChecked = skipSilence,
-            onCheckedChange = {
-                skipSilence = it
-            }
-        )
-
-        SwitchSettingEntry(
-            title = stringResource(id = R.string.loudness_normalization),
-            text = stringResource(id = R.string.loudness_normalization_description),
-            icon = Icons.AutoMirrored.Outlined.VolumeUp,
-            isChecked = volumeNormalization,
-            onCheckedChange = {
-                volumeNormalization = it
-            }
-        )
-
-        SettingsEntry(
-            title = stringResource(id = R.string.equalizer),
-            text = stringResource(id = R.string.equalizer_description),
-            icon = Icons.Outlined.Equalizer,
-            onClick = {
-                val intent = Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL).apply {
-                    putExtra(AudioEffect.EXTRA_AUDIO_SESSION, binder?.player?.audioSessionId)
-                    putExtra(AudioEffect.EXTRA_PACKAGE_NAME, context.packageName)
-                    putExtra(AudioEffect.EXTRA_CONTENT_TYPE, AudioEffect.CONTENT_TYPE_MUSIC)
-                }
-
-                try {
-                    activityResultLauncher.launch(intent)
-                } catch (_: ActivityNotFoundException) {
-                    context.toast("Couldn't find an application to equalize audio")
-                }
-            }
-        )
     }
 }
