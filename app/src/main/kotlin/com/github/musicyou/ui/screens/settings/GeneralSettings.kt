@@ -1,11 +1,8 @@
 package com.github.musicyou.ui.screens.settings
 
 import android.app.Activity
-import android.app.LocaleManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.os.Build
-import android.os.LocaleList
 import android.provider.Settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,12 +56,17 @@ fun GeneralSettings() {
     )
 
     var currentLanguage by remember {
-        val code = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.getSystemService(LocaleManager::class.java).applicationLocales.toLanguageTags()
+        val code = if (isAtLeastAndroid13) {
+            context.getSystemService(android.app.LocaleManager::class.java).applicationLocales.toLanguageTags()
         } else {
             context.preferences.getString("app_language", "") ?: ""
         }
-        mutableStateOf(AppLanguage.entries.find { it.code == code } ?: AppLanguage.SYSTEM)
+        mutableStateOf(
+            if (code.isEmpty()) AppLanguage.SYSTEM 
+            else AppLanguage.entries.find { it.code.equals(code, ignoreCase = true) } 
+                ?: AppLanguage.entries.find { it.code.startsWith(code.substringBefore("-"), ignoreCase = true) } 
+                ?: AppLanguage.SYSTEM
+        )
     }
 
     Column(
@@ -78,9 +80,9 @@ fun GeneralSettings() {
             selectedValue = currentLanguage,
             onValueSelected = { language ->
                 currentLanguage = language
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val localeManager = context.getSystemService(LocaleManager::class.java)
-                    localeManager.applicationLocales = LocaleList.forLanguageTags(language.code)
+                if (isAtLeastAndroid13) {
+                    val localeManager = context.getSystemService(android.app.LocaleManager::class.java)
+                    localeManager.applicationLocales = android.os.LocaleList.forLanguageTags(language.code)
                 } else {
                     context.preferences.edit { putString("app_language", language.code) }
                     (context as? Activity)?.recreate()
