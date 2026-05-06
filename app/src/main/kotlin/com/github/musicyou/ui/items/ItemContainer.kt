@@ -42,14 +42,14 @@ fun ItemContainer(
     subtitle: String? = null,
     onClick: (() -> Unit)? = null,
     textAlign: TextAlign = TextAlign.Start,
-    shape: Shape = MaterialTheme.shapes.large,
+    shape: Shape = MaterialTheme.shapes.extraLarge,
     color: Color = MaterialTheme.colorScheme.surfaceVariant,
     thumbnail: @Composable () -> Unit
 ) {
     Column(
         modifier = modifier
             .widthIn(max = 200.dp)
-            .clip(MaterialTheme.shapes.large)
+            .clip(MaterialTheme.shapes.extraLarge)
             .clickable(
                 enabled = onClick != null,
                 onClick = onClick ?: {}
@@ -67,7 +67,7 @@ fun ItemContainer(
             thumbnail()
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         if (isPlaceholder) {
             TextPlaceholder()
@@ -75,7 +75,7 @@ fun ItemContainer(
             Text(
                 text = title,
                 modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.titleMedium,
                 textAlign = textAlign,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -91,7 +91,7 @@ fun ItemContainer(
                 Text(
                     text = subtitle,
                     modifier = Modifier.fillMaxWidth(),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     textAlign = textAlign,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -104,7 +104,7 @@ fun ItemContainer(
 @Composable
 fun ItemPlaceholder(
     modifier: Modifier = Modifier,
-    shape: Shape = MaterialTheme.shapes.large
+    shape: Shape = MaterialTheme.shapes.extraLarge
 ) {
     ItemContainer(
         modifier = modifier,
@@ -129,7 +129,7 @@ fun ListItemContainer(
     color: Color = MaterialTheme.colorScheme.surfaceVariant,
     containerColor: Color = ListItemDefaults.colors().containerColor,
     thumbnail: @Composable (size: Dp) -> Unit,
-    thumbnailHeight: Dp = 56.dp,
+    thumbnailHeight: Dp = 64.dp,
     thumbnailAspectRatio: Float = 1F,
     trailingContent: @Composable (() -> Unit)? = null
 ) {
@@ -140,14 +140,15 @@ fun ListItemContainer(
             } else {
                 Text(
                     text = title,
-                    lineHeight = 16.sp,
+                    lineHeight = 20.sp,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = maxLines,
                     overflow = TextOverflow.Ellipsis
                 )
             }
         },
         modifier = modifier
-            .clip(MaterialTheme.shapes.large)
+            .clip(MaterialTheme.shapes.extraLarge)
             .combinedClickable(
                 enabled = onClick != null || onLongClick != null,
                 onClick = onClick ?: {},
@@ -161,6 +162,7 @@ fun ListItemContainer(
                     Text(
                         text = subtitle,
                         maxLines = 1,
+                        style = MaterialTheme.typography.bodyMedium,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
@@ -171,7 +173,7 @@ fun ListItemContainer(
                 modifier = Modifier
                     .height(height = thumbnailHeight)
                     .aspectRatio(ratio = thumbnailAspectRatio)
-                    .clip(MaterialTheme.shapes.medium)
+                    .clip(MaterialTheme.shapes.large)
                     .background(color),
                 contentAlignment = Alignment.Center
             ) {
@@ -198,7 +200,7 @@ fun ListItemContainer(
 @Composable
 fun ListItemPlaceholder(
     modifier: Modifier = Modifier,
-    thumbnailHeight: Dp = 56.dp,
+    thumbnailHeight: Dp = 64.dp,
     thumbnailAspectRatio: Float = 1F
 ) {
     ListItemContainer(
