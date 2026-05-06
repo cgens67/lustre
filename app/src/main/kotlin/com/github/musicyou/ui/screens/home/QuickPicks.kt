@@ -2,7 +2,6 @@ package com.github.musicyou.ui.screens.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -18,10 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -40,15 +35,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.innertube.Innertube
 import com.github.innertube.models.NavigationEndpoint
@@ -65,12 +57,11 @@ import com.github.musicyou.ui.components.TextPlaceholder
 import com.github.musicyou.ui.items.AlbumItem
 import com.github.musicyou.ui.items.ArtistItem
 import com.github.musicyou.ui.items.ItemPlaceholder
-import com.github.musicyou.ui.items.ListItemPlaceholder
 import com.github.musicyou.ui.items.PlaylistItem
+import com.github.musicyou.ui.items.SquareSongItem
 import com.github.musicyou.ui.items.TallLocalSongItem
 import com.github.musicyou.ui.items.TallSongItem
 import com.github.musicyou.ui.styling.Dimensions
-import com.github.musicyou.utils.SnapLayoutInfoProvider
 import com.github.musicyou.utils.asMediaItem
 import com.github.musicyou.utils.forcePlay
 import com.github.musicyou.utils.isLandscape
@@ -98,9 +89,7 @@ fun QuickPicks(
     val quickPicksSource by rememberPreference(quickPicksSourceKey, QuickPicksSource.Trending)
     val scope = rememberCoroutineScope()
 
-    val songThumbnailSizeDp = Dimensions.thumbnails.song
-    val itemSize = 124.dp + 2 * 12.dp
-    val quickPicksLazyGridState = rememberLazyGridState()
+    val itemSize = 148.dp
     val sectionTextModifier = Modifier
         .padding(horizontal = 16.dp)
         .padding(bottom = 8.dp)
@@ -115,23 +104,7 @@ fun QuickPicks(
         openSettings = openSettings
     ) {
         BoxWithConstraints {
-            val quickPicksLazyGridItemWidthFactor =
-                if (isLandscape && maxWidth * 0.475f >= 320.dp) 0.475f else 0.9f
-
-            val density = LocalDensity.current
-
-            val snapLayoutInfoProvider = remember(quickPicksLazyGridState) {
-                with(density) {
-                    SnapLayoutInfoProvider(
-                        lazyGridState = quickPicksLazyGridState,
-                        positionInLayout = { layoutSize, itemSize ->
-                            (layoutSize * quickPicksLazyGridItemWidthFactor / 2f - itemSize / 2f)
-                        }
-                    )
-                }
-            }
-
-            val itemInHorizontalGridWidth = maxWidth * quickPicksLazyGridItemWidthFactor
+            val itemInHorizontalGridWidth = if (isLandscape) maxWidth * 0.25f else maxWidth * 0.45f
 
             Column(
                 modifier = Modifier
@@ -161,11 +134,9 @@ fun QuickPicks(
                 }
 
                 viewModel.relatedPageResult?.getOrNull()?.let { related ->
-                    Text(
-                        text = stringResource(id = R.string.quick_picks),
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = sectionTextModifier
-                    )
+                    val allSongs = related.songs ?: emptyList()
+                    val tallSongs = allSongs.take(4)
+                    val keepListeningSongs = allSongs.drop(4)
 
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -207,7 +178,7 @@ fun QuickPicks(
                         }
 
                         items(
-                            items = related.songs?.dropLast(if (viewModel.trending == null) 0 else 1) ?: emptyList(),
+                            items = tallSongs,
                             key = Innertube.SongItem::key
                         ) { song ->
                             TallSongItem(
@@ -234,6 +205,48 @@ fun QuickPicks(
                                     }
                                 }
                             )
+                        }
+                    }
+
+                    if (keepListeningSongs.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(Dimensions.spacer))
+                        Text(
+                            text = "Keep listening",
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = sectionTextModifier
+                        )
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp)
+                        ) {
+                            items(
+                                items = keepListeningSongs,
+                                key = Innertube.SongItem::key
+                            ) { song ->
+                                SquareSongItem(
+                                    modifier = Modifier.widthIn(max = itemSize),
+                                    song = song,
+                                    onClick = {
+                                        val mediaItem = song.asMediaItem
+                                        binder?.stopRadio()
+                                        binder?.player?.forcePlay(mediaItem)
+                                        binder?.setupRadio(
+                                            NavigationEndpoint.Endpoint.Watch(videoId = mediaItem.mediaId)
+                                        )
+                                    },
+                                    onLongClick = {
+                                        menuState.display {
+                                            NonQueuedMediaItemMenu(
+                                                onDismiss = menuState::hide,
+                                                mediaItem = song.asMediaItem,
+                                                onGoToAlbum = onAlbumClick,
+                                                onGoToArtist = onArtistClick
+                                            )
+                                        }
+                                    }
+                                )
+                            }
                         }
                     }
 
@@ -362,11 +375,9 @@ fun QuickPicks(
                         }
                     }
                 } ?: ShimmerHost {
-                    TextPlaceholder(modifier = sectionTextModifier)
-
                     Row(modifier = Modifier.padding(start = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         repeat(2) {
-                            ItemPlaceholder(modifier = Modifier.width(itemInHorizontalGridWidth).aspectRatio(0.55f))
+                            ItemPlaceholder(modifier = Modifier.width(itemInHorizontalGridWidth).aspectRatio(0.45f))
                         }
                     }
 
@@ -390,16 +401,6 @@ fun QuickPicks(
                                 modifier = Modifier.widthIn(max = itemSize),
                                 shape = CircleShape
                             )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(Dimensions.spacer))
-
-                    TextPlaceholder(modifier = sectionTextModifier)
-
-                    Row(modifier = Modifier.padding(start = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        repeat(2) {
-                            ItemPlaceholder(modifier = Modifier.widthIn(max = itemSize))
                         }
                     }
                 }
