@@ -46,6 +46,30 @@ fun SongItem(
 }
 
 @Composable
+fun TallSongItem(
+    modifier: Modifier = Modifier,
+    song: Innertube.SongItem,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
+    CardItem(
+        modifier = modifier,
+        title = song.info?.name ?: "",
+        subtitle = song.authors?.joinToString("") { it.name ?: "" },
+        onClick = onClick,
+        onLongClick = onLongClick,
+        thumbnail = {
+            AsyncImage(
+                model = song.thumbnail?.size(512),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    )
+}
+
+@Composable
 fun LocalSongItem(
     modifier: Modifier = Modifier,
     song: Song,
@@ -80,6 +104,30 @@ fun LocalSongItem(
             }
         },
         trailingContent = trailingContent
+    )
+}
+
+@Composable
+fun TallLocalSongItem(
+    modifier: Modifier = Modifier,
+    song: Song,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
+    CardItem(
+        modifier = modifier,
+        title = song.title,
+        subtitle = song.artistsText,
+        onClick = onClick,
+        onLongClick = onLongClick,
+        thumbnail = {
+            AsyncImage(
+                model = song.thumbnailUrl?.thumbnail(512),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     )
 }
 
