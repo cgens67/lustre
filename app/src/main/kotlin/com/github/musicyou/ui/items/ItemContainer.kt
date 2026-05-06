@@ -45,7 +45,7 @@ fun ItemContainer(
     subtitle: String? = null,
     onClick: (() -> Unit)? = null,
     textAlign: TextAlign = TextAlign.Start,
-    shape: Shape = MaterialTheme.shapes.extraLarge,
+    shape: Shape = MaterialTheme.shapes.large,
     color: Color = MaterialTheme.colorScheme.surfaceVariant,
     thumbnail: @Composable () -> Unit
 ) {
@@ -95,6 +95,7 @@ fun ItemContainer(
                     text = subtitle,
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = textAlign,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -116,7 +117,7 @@ fun CardItem(
 ) {
     Box(
         modifier = modifier
-            .aspectRatio(0.55f) // Tall expressive ratio
+            .aspectRatio(0.45f) // Matches the very tall cards from the video
             .clip(MaterialTheme.shapes.extraLarge)
             .combinedClickable(
                 enabled = onClick != null || onLongClick != null,
@@ -166,7 +167,7 @@ fun CardItem(
 @Composable
 fun ItemPlaceholder(
     modifier: Modifier = Modifier,
-    shape: Shape = MaterialTheme.shapes.extraLarge
+    shape: Shape = MaterialTheme.shapes.large
 ) {
     ItemContainer(
         modifier = modifier,
