@@ -21,8 +21,8 @@ class YouTubeClient(
             osVersion = osVersion,
             platform = platform,
             userAgent = userAgent,
-            gl = if (localized) Locale.getDefault().country.takeIf { !it.isNullOrBlank() } ?: "US" else "US",
-            hl = if (localized) Locale.getDefault().toLanguageTag().takeIf { it != "und" } ?: "en" else "en",
+            gl = if (localized) Locale.getDefault().country.takeIf { it.isNotEmpty() } ?: "US" else "US",
+            hl = if (localized) Locale.getDefault().language.takeIf { it.isNotEmpty() && it != "und" } ?: "en" else "en",
             visitorData = visitorData
         )
     )
