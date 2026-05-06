@@ -48,7 +48,7 @@ fun Context.wrapWithLocale(): Context {
     }
     val lang = getSharedPreferences("preferences", Context.MODE_PRIVATE).getString("app_language", "") ?: ""
     return if (lang.isNotEmpty()) {
-        val locale = Locale(lang)
+        val locale = Locale.forLanguageTag(lang)
         Locale.setDefault(locale)
         val config = Configuration(resources.configuration)
         config.setLocale(locale)
