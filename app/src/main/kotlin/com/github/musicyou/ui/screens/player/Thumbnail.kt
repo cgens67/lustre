@@ -241,14 +241,14 @@ fun Thumbnail(
 
         if (playerGesturesEnabled) {
             SwipeableActionsBox(
-                modifier = modifier.clip(shape = MaterialTheme.shapes.large),
+                modifier = modifier.clip(shape = MaterialTheme.shapes.extraLarge),
                 startActions = listOf(startAction),
                 endActions = listOf(endAction),
                 content = thumbnailContent
             )
         } else {
             Box(
-                modifier = modifier.clip(shape = MaterialTheme.shapes.large),
+                modifier = modifier.clip(shape = MaterialTheme.shapes.extraLarge),
                 content = thumbnailContent
             )
         }
