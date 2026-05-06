@@ -46,8 +46,8 @@ fun Context.wrapWithLocale(): Context {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         return this
     }
-    val lang = getSharedPreferences("preferences", Context.MODE_PRIVATE).getString("app_language", "")
-    return if (!lang.isNullOrEmpty()) {
+    val lang = getSharedPreferences("preferences", Context.MODE_PRIVATE).getString("app_language", "") ?: ""
+    return if (lang.isNotEmpty()) {
         val locale = Locale(lang)
         Locale.setDefault(locale)
         val config = Configuration(resources.configuration)
