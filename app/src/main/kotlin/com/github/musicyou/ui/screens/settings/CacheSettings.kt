@@ -2,16 +2,19 @@ package com.github.musicyou.ui.screens.settings
 
 import android.text.format.Formatter
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.MusicNote
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -30,7 +34,6 @@ import com.github.musicyou.LocalPlayerServiceBinder
 import com.github.musicyou.R
 import com.github.musicyou.enums.CoilDiskCacheMaxSize
 import com.github.musicyou.enums.ExoPlayerDiskCacheMaxSize
-import com.github.musicyou.ui.styling.Dimensions
 import com.github.musicyou.utils.coilDiskCacheMaxSizeKey
 import com.github.musicyou.utils.exoPlayerDiskCacheMaxSizeKey
 import com.github.musicyou.utils.rememberPreference
@@ -59,75 +62,89 @@ fun CacheSettings() {
             .verticalScroll(rememberScrollState())
             .padding(top = 8.dp, bottom = 16.dp + playerPadding)
     ) {
-        context.imageLoader.diskCache?.let { diskCache ->
-            val diskCacheSize = remember(diskCache) {
-                diskCache.size
+        SettingsGroup(title = stringResource(id = R.string.image_cache)) {
+            context.imageLoader.diskCache?.let { diskCache ->
+                val diskCacheSize = remember(diskCache) {
+                    diskCache.size
+                }
+
+                SettingsProgress(
+                    text = Formatter.formatShortFileSize(
+                        context,
+                        diskCacheSize
+                    ),
+                    progress = diskCacheSize.toFloat() / coilDiskCacheMaxSize.bytes.coerceAtLeast(
+                        minimumValue = 1
+                    ).toFloat()
+                )
+
+                EnumValueSelectorSettingsEntry(
+                    title = stringResource(id = R.string.max_size),
+                    selectedValue = coilDiskCacheMaxSize,
+                    onValueSelected = { coilDiskCacheMaxSize = it },
+                    icon = Icons.Outlined.Image
+                )
             }
-
-            Text(
-                text = stringResource(id = R.string.image_cache),
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 4.dp),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge
-            )
-
-            SettingsProgress(
-                text = Formatter.formatShortFileSize(
-                    context,
-                    diskCacheSize
-                ),
-                progress = diskCacheSize.toFloat() / coilDiskCacheMaxSize.bytes.coerceAtLeast(
-                    minimumValue = 1
-                ).toFloat()
-            )
-
-            EnumValueSelectorSettingsEntry(
-                title = stringResource(id = R.string.max_size),
-                selectedValue = coilDiskCacheMaxSize,
-                onValueSelected = { coilDiskCacheMaxSize = it },
-                icon = Icons.Outlined.Image
-            )
         }
 
-        binder?.cache?.let { cache ->
-            val diskCacheSize by remember {
-                derivedStateOf {
-                    cache.cacheSpace
+        SettingsGroup(title = stringResource(id = R.string.song_cache)) {
+            binder?.cache?.let { cache ->
+                val diskCacheSize by remember {
+                    derivedStateOf {
+                        cache.cacheSpace
+                    }
                 }
+
+                SettingsProgress(
+                    text = Formatter.formatShortFileSize(
+                        context,
+                        diskCacheSize
+                    ),
+                    progress = when (val size = exoPlayerDiskCacheMaxSize) {
+                        ExoPlayerDiskCacheMaxSize.Unlimited -> 0F
+                        else -> (diskCacheSize.toFloat() / size.bytes.toFloat())
+                    }
+                )
+
+                EnumValueSelectorSettingsEntry(
+                    title = stringResource(id = R.string.max_size),
+                    selectedValue = exoPlayerDiskCacheMaxSize,
+                    onValueSelected = { exoPlayerDiskCacheMaxSize = it },
+                    icon = Icons.Outlined.MusicNote
+                )
             }
-
-            Spacer(modifier = Modifier.height(Dimensions.spacer))
-
-            Text(
-                text = stringResource(id = R.string.song_cache),
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 4.dp),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelLarge
-            )
-
-            SettingsProgress(
-                text = Formatter.formatShortFileSize(
-                    context,
-                    diskCacheSize
-                ),
-                progress = when (val size = exoPlayerDiskCacheMaxSize) {
-                    ExoPlayerDiskCacheMaxSize.Unlimited -> 0F
-                    else -> (diskCacheSize.toFloat() / size.bytes.toFloat())
-                }
-            )
-
-            EnumValueSelectorSettingsEntry(
-                title = stringResource(id = R.string.max_size),
-                selectedValue = exoPlayerDiskCacheMaxSize,
-                onValueSelected = { exoPlayerDiskCacheMaxSize = it },
-                icon = Icons.Outlined.MusicNote
-            )
         }
 
         SettingsInformation(text = stringResource(id = R.string.cache_information))
+    }
+}
+
+@Composable
+fun SettingsProgress(text: String, progress: Float) {
+    Column(
+        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge
+            )
+
+            Text(
+                text = "${(progress * 100).toInt()}%",
+                style = MaterialTheme.typography.labelMedium
+            )
+        }
+
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp)),
+        )
     }
 }
