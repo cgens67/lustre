@@ -2,12 +2,14 @@ package com.github.musicyou.ui.screens.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -34,12 +40,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.innertube.Innertube
 import com.github.innertube.models.NavigationEndpoint
@@ -61,8 +70,10 @@ import com.github.musicyou.ui.items.PlaylistItem
 import com.github.musicyou.ui.items.TallLocalSongItem
 import com.github.musicyou.ui.items.TallSongItem
 import com.github.musicyou.ui.styling.Dimensions
+import com.github.musicyou.utils.SnapLayoutInfoProvider
 import com.github.musicyou.utils.asMediaItem
 import com.github.musicyou.utils.forcePlay
+import com.github.musicyou.utils.isLandscape
 import com.github.musicyou.utils.quickPicksSourceKey
 import com.github.musicyou.utils.rememberPreference
 import com.github.musicyou.viewmodels.QuickPicksViewModel
@@ -87,7 +98,9 @@ fun QuickPicks(
     val quickPicksSource by rememberPreference(quickPicksSourceKey, QuickPicksSource.Trending)
     val scope = rememberCoroutineScope()
 
-    val itemSize = 148.dp
+    val songThumbnailSizeDp = Dimensions.thumbnails.song
+    val itemSize = 124.dp + 2 * 12.dp
+    val quickPicksLazyGridState = rememberLazyGridState()
     val sectionTextModifier = Modifier
         .padding(horizontal = 16.dp)
         .padding(bottom = 8.dp)
@@ -102,7 +115,23 @@ fun QuickPicks(
         openSettings = openSettings
     ) {
         BoxWithConstraints {
-            val itemInHorizontalGridWidth = maxWidth * 0.42f
+            val quickPicksLazyGridItemWidthFactor =
+                if (isLandscape && maxWidth * 0.475f >= 320.dp) 0.475f else 0.9f
+
+            val density = LocalDensity.current
+
+            val snapLayoutInfoProvider = remember(quickPicksLazyGridState) {
+                with(density) {
+                    SnapLayoutInfoProvider(
+                        lazyGridState = quickPicksLazyGridState,
+                        positionInLayout = { layoutSize, itemSize ->
+                            (layoutSize * quickPicksLazyGridItemWidthFactor / 2f - itemSize / 2f)
+                        }
+                    )
+                }
+            }
+
+            val itemInHorizontalGridWidth = maxWidth * quickPicksLazyGridItemWidthFactor
 
             Column(
                 modifier = Modifier
@@ -361,6 +390,16 @@ fun QuickPicks(
                                 modifier = Modifier.widthIn(max = itemSize),
                                 shape = CircleShape
                             )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(Dimensions.spacer))
+
+                    TextPlaceholder(modifier = sectionTextModifier)
+
+                    Row(modifier = Modifier.padding(start = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        repeat(2) {
+                            ItemPlaceholder(modifier = Modifier.widthIn(max = itemSize))
                         }
                     }
                 }
