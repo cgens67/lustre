@@ -3,6 +3,7 @@ package com.github.musicyou.ui.screens.settings
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -63,8 +64,7 @@ fun GeneralSettings() {
         }
         mutableStateOf(
             if (code.isEmpty()) AppLanguage.SYSTEM 
-            else AppLanguage.entries.find { it.code.equals(code, ignoreCase = true) } 
-                ?: AppLanguage.entries.find { it.code.startsWith(code.substringBefore("-"), ignoreCase = true) } 
+            else AppLanguage.entries.find { it.code.equals(code.substringBefore("-"), ignoreCase = true) } 
                 ?: AppLanguage.SYSTEM
         )
     }
