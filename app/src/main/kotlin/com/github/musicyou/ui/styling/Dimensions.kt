@@ -8,15 +8,15 @@ import androidx.compose.ui.unit.dp
 
 @Suppress("ClassName")
 object Dimensions {
-    val itemsVerticalPadding = 8.dp
+    val itemsVerticalPadding = 12.dp
     const val mediumOpacity = 0.75F
     const val lowOpacity = 0.5F
-    val spacer = 16.dp
+    val spacer = 24.dp
 
     object thumbnails {
-        val album = 128.dp
-        val artist = 192.dp
-        val song = 56.dp
+        val album = 140.dp
+        val artist = 200.dp
+        val song = 64.dp
         val playlist = album
 
         object player {
