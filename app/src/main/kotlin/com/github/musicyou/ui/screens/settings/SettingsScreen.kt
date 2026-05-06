@@ -33,19 +33,13 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -53,8 +47,6 @@ import androidx.compose.ui.unit.dp
 import com.github.musicyou.LocalPlayerPadding
 import com.github.musicyou.R
 import com.github.musicyou.enums.SettingsSection
-import com.github.musicyou.ui.components.ValueSelectorDialog
-import com.github.musicyou.ui.styling.Dimensions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalFoundationApi
@@ -103,12 +95,13 @@ fun SettingsScreen(
             
             // Top Wide Card (App Info / About mapping to Login styling)
             Surface(
-                onClick = { onGoToSettingsPage(SettingsSection.About.ordinal) },
                 shape = MaterialTheme.shapes.extraLarge,
                 color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .clip(MaterialTheme.shapes.extraLarge)
+                    .clickable { onGoToSettingsPage(SettingsSection.About.ordinal) }
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -222,10 +215,12 @@ fun SettingsGridCard(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        onClick = onClick,
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
-        modifier = modifier.aspectRatio(1.1f)
+        modifier = modifier
+            .aspectRatio(1.1f)
+            .clip(MaterialTheme.shapes.extraLarge)
+            .clickable(onClick = onClick)
     ) {
         Column(Modifier.padding(20.dp)) {
             Surface(
@@ -283,114 +278,6 @@ fun SettingsListItem(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-    )
-}
-
-@Composable
-inline fun <reified T : Enum<T>> EnumValueSelectorSettingsEntry(
-    title: String,
-    selectedValue: T,
-    crossinline onValueSelected: (T) -> Unit,
-    icon: ImageVector,
-    isEnabled: Boolean = true,
-    crossinline valueText: (T) -> String = Enum<T>::name,
-    noinline trailingContent: @Composable (() -> Unit)? = null
-) {
-    ValueSelectorSettingsEntry(
-        title = title,
-        selectedValue = selectedValue,
-        values = enumValues<T>().toList(),
-        onValueSelected = onValueSelected,
-        icon = icon,
-        isEnabled = isEnabled,
-        valueText = valueText,
-        trailingContent = trailingContent,
-    )
-}
-
-@Composable
-inline fun <T> ValueSelectorSettingsEntry(
-    title: String,
-    selectedValue: T,
-    values: List<T>,
-    crossinline onValueSelected: (T) -> Unit,
-    icon: ImageVector,
-    isEnabled: Boolean = true,
-    crossinline valueText: (T) -> String = { it.toString() },
-    noinline trailingContent: @Composable (() -> Unit)? = null
-) {
-    var isShowingDialog by remember { mutableStateOf(false) }
-
-    if (isShowingDialog) {
-        ValueSelectorDialog(
-            onDismiss = { isShowingDialog = false },
-            title = title,
-            selectedValue = selectedValue,
-            values = values,
-            onValueSelected = onValueSelected,
-            valueText = valueText
-        )
-    }
-
-    SettingsEntry(
-        title = title,
-        text = valueText(selectedValue),
-        icon = icon,
-        onClick = { isShowingDialog = true },
-        isEnabled = isEnabled,
-        trailingContent = trailingContent
-    )
-}
-
-@Composable
-fun SwitchSettingEntry(
-    title: String,
-    text: String,
-    icon: ImageVector,
-    isChecked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    isEnabled: Boolean = true
-) {
-    SettingsEntry(
-        title = title,
-        text = text,
-        icon = icon,
-        onClick = { onCheckedChange(!isChecked) },
-        isEnabled = isEnabled
-    ) {
-        Switch(
-            checked = isChecked,
-            onCheckedChange = onCheckedChange,
-            enabled = isEnabled
-        )
-    }
-}
-
-@Composable
-fun SettingsEntry(
-    title: String,
-    text: String,
-    icon: ImageVector,
-    onClick: () -> Unit,
-    isEnabled: Boolean = true,
-    trailingContent: @Composable (() -> Unit)? = null
-) {
-    ListItem(
-        headlineContent = {
-            Text(text = title)
-        },
-        modifier = Modifier.clickable(enabled = isEnabled, onClick = onClick).alpha(if (isEnabled) 1F else Dimensions.lowOpacity),
-        leadingContent = {
-            Icon(
-                imageVector = icon,
-                contentDescription = title
-            )
-        },
-        supportingContent = {
-            Text(text = text)
-        },
-        trailingContent = { trailingContent?.invoke() },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
     )
 }
