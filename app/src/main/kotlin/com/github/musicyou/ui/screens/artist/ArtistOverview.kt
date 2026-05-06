@@ -67,7 +67,7 @@ fun ArtistOverview(
     val menuState = LocalMenuState.current
     val playerPadding = LocalPlayerPadding.current
 
-    val itemSize = 140.dp
+    val itemSize = 148.dp
 
     Column(
         modifier = Modifier
@@ -114,7 +114,7 @@ fun ArtistOverview(
                 ) {
                     Text(
                         text = stringResource(id = R.string.songs),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.headlineSmall,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
@@ -161,7 +161,7 @@ fun ArtistOverview(
                 ) {
                     Text(
                         text = stringResource(id = R.string.albums),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.headlineSmall,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
@@ -201,7 +201,7 @@ fun ArtistOverview(
                 ) {
                     Text(
                         text = stringResource(id = R.string.singles),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.headlineSmall,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
 
@@ -241,7 +241,7 @@ fun ArtistOverview(
                 ) {
                     Text(
                         text = stringResource(id = R.string.playlists),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.headlineSmall,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
@@ -275,7 +275,7 @@ fun ArtistOverview(
                 ) {
                     Text(
                         text = stringResource(id = R.string.featured_on),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.headlineSmall,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
@@ -309,7 +309,7 @@ fun ArtistOverview(
                 ) {
                     Text(
                         text = stringResource(id = R.string.fans_might_also_like),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.headlineSmall,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
@@ -338,7 +338,7 @@ fun ArtistOverview(
 
                 Text(
                     text = stringResource(id = R.string.about),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -350,7 +350,7 @@ fun ArtistOverview(
                     } else {
                         description.substring(0, attributionsIndex)
                     },
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .alpha(Dimensions.mediumOpacity)
