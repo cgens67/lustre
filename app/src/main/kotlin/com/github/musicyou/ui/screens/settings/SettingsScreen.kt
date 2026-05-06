@@ -4,13 +4,18 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -21,8 +26,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -31,9 +38,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -42,7 +50,6 @@ import com.github.musicyou.LocalPlayerPadding
 import com.github.musicyou.R
 import com.github.musicyou.enums.SettingsSection
 import com.github.musicyou.ui.components.ValueSelectorDialog
-import com.github.musicyou.ui.styling.Dimensions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalFoundationApi
@@ -53,7 +60,6 @@ fun SettingsScreen(
     onGoToSettingsPage: (Int) -> Unit
 ) {
     val playerPadding = LocalPlayerPadding.current
-
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
@@ -80,22 +86,79 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
-                .padding(bottom = playerPadding)
+                .padding(top = 16.dp, bottom = 16.dp + playerPadding),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            SettingsSection.entries.forEachIndexed { index, section ->
-                ListItem(
-                    headlineContent = {
-                        Text(text = stringResource(id = section.resourceId))
-                    },
-                    modifier = Modifier.clickable { onGoToSettingsPage(index) },
-                    leadingContent = {
-                        Icon(
-                            imageVector = section.icon,
-                            contentDescription = stringResource(id = section.resourceId)
-                        )
+            SettingsSection.entries.chunked(2).forEach { rowItems ->
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    rowItems.forEach { section ->
+                        val index = SettingsSection.entries.indexOf(section)
+                        Surface(
+                            onClick = { onGoToSettingsPage(index) },
+                            shape = MaterialTheme.shapes.extraLarge,
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1.15f)
+                        ) {
+                            Column(Modifier.padding(20.dp)) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.secondaryContainer,
+                                    modifier = Modifier.size(52.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                        Icon(
+                                            imageVector = section.icon,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.weight(1f))
+                                Text(
+                                    text = stringResource(id = section.resourceId),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
+                        }
                     }
-                )
+                    if (rowItems.size == 1) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun SettingsGroup(
+    title: String? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        if (title != null) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+            )
+        }
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(content = content)
         }
     }
 }
@@ -193,9 +256,7 @@ fun SettingsEntry(
         headlineContent = {
             Text(text = title)
         },
-        modifier = Modifier
-            .clickable(enabled = isEnabled, onClick = onClick)
-            .alpha(if (isEnabled) 1F else Dimensions.lowOpacity),
+        modifier = Modifier.clickable(enabled = isEnabled, onClick = onClick),
         leadingContent = {
             Icon(
                 imageVector = icon,
@@ -205,7 +266,8 @@ fun SettingsEntry(
         supportingContent = {
             Text(text = text)
         },
-        trailingContent = { trailingContent?.invoke() }
+        trailingContent = { trailingContent?.invoke() },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
     )
 }
 
@@ -214,7 +276,7 @@ fun SettingsInformation(
     text: String,
 ) {
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Icon(
@@ -225,34 +287,6 @@ fun SettingsInformation(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-@Composable
-fun SettingsProgress(text: String, progress: Float) {
-    Column(
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Row(
-            modifier = Modifier.width(240.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelLarge
-            )
-
-            Text(
-                text = "${(progress * 100).toInt()}%",
-                style = MaterialTheme.typography.labelMedium
-            )
-        }
-
-        LinearProgressIndicator(
-            progress = { progress },
-            modifier = Modifier.clip(RoundedCornerShape(8.dp)),
         )
     }
 }
