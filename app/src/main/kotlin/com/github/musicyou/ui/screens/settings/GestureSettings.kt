@@ -36,28 +36,30 @@ fun GestureSettings() {
             .verticalScroll(rememberScrollState())
             .padding(bottom = 16.dp + playerPadding)
     ) {
-        SwitchSettingEntry(
-            title = stringResource(id = R.string.list_gestures),
-            text = stringResource(id = R.string.list_gestures_description),
-            icon = Icons.Outlined.LibraryMusic,
-            isChecked = listGesturesEnabled,
-            onCheckedChange = { listGesturesEnabled = !listGesturesEnabled }
-        )
+        SettingsGroup {
+            SwitchSettingEntry(
+                title = stringResource(id = R.string.list_gestures),
+                text = stringResource(id = R.string.list_gestures_description),
+                icon = Icons.Outlined.LibraryMusic,
+                isChecked = listGesturesEnabled,
+                onCheckedChange = { listGesturesEnabled = !listGesturesEnabled }
+            )
 
-        SwitchSettingEntry(
-            title = stringResource(id = R.string.player_gestures),
-            text = stringResource(id = R.string.player_gestures_description),
-            icon = Icons.Outlined.PlayCircle,
-            isChecked = playerGesturesEnabled,
-            onCheckedChange = { playerGesturesEnabled = !playerGesturesEnabled }
-        )
+            SwitchSettingEntry(
+                title = stringResource(id = R.string.player_gestures),
+                text = stringResource(id = R.string.player_gestures_description),
+                icon = Icons.Outlined.PlayCircle,
+                isChecked = playerGesturesEnabled,
+                onCheckedChange = { playerGesturesEnabled = !playerGesturesEnabled }
+            )
 
-        SwitchSettingEntry(
-            title = stringResource(id = R.string.miniplayer_gestures),
-            text = stringResource(id = R.string.player_gestures_description),
-            icon = Icons.Outlined.PlayArrow,
-            isChecked = miniplayerGesturesEnabled,
-            onCheckedChange = { miniplayerGesturesEnabled = !miniplayerGesturesEnabled }
-        )
+            SwitchSettingEntry(
+                title = stringResource(id = R.string.miniplayer_gestures),
+                text = stringResource(id = R.string.player_gestures_description),
+                icon = Icons.Outlined.PlayArrow,
+                isChecked = miniplayerGesturesEnabled,
+                onCheckedChange = { miniplayerGesturesEnabled = !miniplayerGesturesEnabled }
+            )
+        }
     }
 }
