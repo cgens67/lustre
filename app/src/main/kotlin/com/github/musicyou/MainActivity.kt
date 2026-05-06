@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.ComponentActivity
@@ -57,12 +58,12 @@ import com.github.musicyou.ui.styling.AppTheme
 import com.github.musicyou.utils.asMediaItem
 import com.github.musicyou.utils.forcePlay
 import com.github.musicyou.utils.intent
-import com.github.musicyou.utils.wrapWithLocale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     private val serviceConnection = object : ServiceConnection {
@@ -78,10 +79,6 @@ class MainActivity : ComponentActivity() {
     private var binder by mutableStateOf<PlayerService.Binder?>(null)
     private var data by mutableStateOf<Uri?>(null)
 
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(newBase.wrapWithLocale())
-    }
-
     override fun onStart() {
         super.onStart()
         bindService(intent<PlayerService>(), serviceConnection, BIND_AUTO_CREATE)
@@ -90,6 +87,19 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
+        
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            val langCode = getSharedPreferences("preferences", Context.MODE_PRIVATE).getString("app_language", "") ?: ""
+            if (langCode.isNotEmpty()) {
+                val locale = Locale.forLanguageTag(langCode)
+                Locale.setDefault(locale)
+                val config = android.content.res.Configuration(resources.configuration)
+                config.setLocale(locale)
+                @Suppress("DEPRECATION")
+                resources.updateConfiguration(config, resources.displayMetrics)
+            }
+        }
+        
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
