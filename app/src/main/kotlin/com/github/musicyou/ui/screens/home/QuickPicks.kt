@@ -96,7 +96,7 @@ fun QuickPicks(
     val scope = rememberCoroutineScope()
 
     val songThumbnailSizeDp = Dimensions.thumbnails.song
-    val itemSize = 108.dp + 2 * 8.dp
+    val itemSize = 124.dp + 2 * 12.dp
     val quickPicksLazyGridState = rememberLazyGridState()
     val sectionTextModifier = Modifier
         .padding(horizontal = 16.dp)
@@ -139,7 +139,7 @@ fun QuickPicks(
                 viewModel.relatedPageResult?.getOrNull()?.let { related ->
                     Text(
                         text = stringResource(id = R.string.quick_picks),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.headlineSmall,
                         modifier = sectionTextModifier
                     )
 
@@ -222,7 +222,7 @@ fun QuickPicks(
 
                         Text(
                             text = stringResource(id = R.string.related_albums),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.headlineSmall,
                             modifier = sectionTextModifier
                         )
 
@@ -247,7 +247,7 @@ fun QuickPicks(
 
                         Text(
                             text = stringResource(id = R.string.similar_artists),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.headlineSmall,
                             modifier = sectionTextModifier
                         )
 
@@ -272,7 +272,7 @@ fun QuickPicks(
 
                         Text(
                             text = stringResource(id = R.string.recommended_playlists),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.headlineSmall,
                             modifier = sectionTextModifier
                         )
 
