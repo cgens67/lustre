@@ -64,7 +64,7 @@ fun GeneralSettings() {
         }
         mutableStateOf(
             if (code.isEmpty()) AppLanguage.SYSTEM 
-            else AppLanguage.entries.find { it.code.equals(code.substringBefore("-"), ignoreCase = true) } 
+            else AppLanguage.entries.find { it.code.startsWith(code.substringBefore("-"), ignoreCase = true) } 
                 ?: AppLanguage.SYSTEM
         )
     }
@@ -75,67 +75,73 @@ fun GeneralSettings() {
             .verticalScroll(rememberScrollState())
             .padding(bottom = 16.dp + playerPadding)
     ) {
-        EnumValueSelectorSettingsEntry(
-            title = stringResource(id = R.string.app_language),
-            selectedValue = currentLanguage,
-            onValueSelected = { language ->
-                currentLanguage = language
-                if (isAtLeastAndroid13) {
-                    val localeManager = context.getSystemService(android.app.LocaleManager::class.java)
-                    localeManager.applicationLocales = android.os.LocaleList.forLanguageTags(language.code)
-                } else {
-                    context.preferences.edit { putString("app_language", language.code) }
-                    (context as? Activity)?.recreate()
-                }
-            },
-            icon = Icons.Outlined.Language,
-            valueText = { it.displayName }
-        )
-
-        EnumValueSelectorSettingsEntry(
-            title = stringResource(id = R.string.navigation_bar_label_visibility),
-            selectedValue = navigationLabelsVisibility,
-            onValueSelected = { navigationLabelsVisibility = it },
-            icon = Icons.Outlined.Visibility,
-            valueText = { context.getString(it.resourceId) }
-        )
-
-        EnumValueSelectorSettingsEntry(
-            title = stringResource(id = R.string.quick_picks_source),
-            selectedValue = quickPicksSource,
-            onValueSelected = { quickPicksSource = it },
-            icon = Icons.AutoMirrored.Outlined.List,
-            valueText = { context.getString(it.resourceId) }
-        )
-
-        if (isAtLeastAndroid12) {
-            val intent = Intent(
-                Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
-                "package:${context.packageName}".toUri()
+        SettingsGroup(title = stringResource(id = R.string.general)) {
+            EnumValueSelectorSettingsEntry(
+                title = stringResource(id = R.string.app_language),
+                selectedValue = currentLanguage,
+                onValueSelected = { language ->
+                    currentLanguage = language
+                    if (isAtLeastAndroid13) {
+                        val localeManager = context.getSystemService(android.app.LocaleManager::class.java)
+                        localeManager.applicationLocales = android.os.LocaleList.forLanguageTags(language.code)
+                    } else {
+                        context.preferences.edit { putString("app_language", language.code) }
+                        (context as? Activity)?.recreate()
+                    }
+                },
+                icon = Icons.Outlined.Language,
+                valueText = { it.displayName }
             )
 
-            SettingsEntry(
-                title = stringResource(id = R.string.open_supported_links_by_default),
-                text = stringResource(id = R.string.configure_supported_links),
-                icon = Icons.Outlined.AddLink,
-                onClick = {
-                    try {
-                        context.startActivity(intent)
-                    } catch (_: Exception) {
-                        context.toast("Couldn't find supported links settings, please configure them manually")
-                    }
-                }
+            EnumValueSelectorSettingsEntry(
+                title = stringResource(id = R.string.navigation_bar_label_visibility),
+                selectedValue = navigationLabelsVisibility,
+                onValueSelected = { navigationLabelsVisibility = it },
+                icon = Icons.Outlined.Visibility,
+                valueText = { context.getString(it.resourceId) }
+            )
+
+            EnumValueSelectorSettingsEntry(
+                title = stringResource(id = R.string.quick_picks_source),
+                selectedValue = quickPicksSource,
+                onValueSelected = { quickPicksSource = it },
+                icon = Icons.AutoMirrored.Outlined.List,
+                valueText = { context.getString(it.resourceId) }
             )
         }
 
+        if (isAtLeastAndroid12) {
+            SettingsGroup {
+                val intent = Intent(
+                    Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS,
+                    "package:${context.packageName}".toUri()
+                )
+
+                SettingsEntry(
+                    title = stringResource(id = R.string.open_supported_links_by_default),
+                    text = stringResource(id = R.string.configure_supported_links),
+                    icon = Icons.Outlined.AddLink,
+                    onClick = {
+                        try {
+                            context.startActivity(intent)
+                        } catch (_: Exception) {
+                            context.toast("Couldn't find supported links settings, please configure them manually")
+                        }
+                    }
+                )
+            }
+        }
+
         if (!isAtLeastAndroid13) {
-            SwitchSettingEntry(
-                title = stringResource(id = R.string.show_song_cover),
-                text = stringResource(id = R.string.show_song_cover_description),
-                icon = Icons.Outlined.Image,
-                isChecked = isShowingThumbnailInLockscreen,
-                onCheckedChange = { isShowingThumbnailInLockscreen = it }
-            )
+            SettingsGroup {
+                SwitchSettingEntry(
+                    title = stringResource(id = R.string.show_song_cover),
+                    text = stringResource(id = R.string.show_song_cover_description),
+                    icon = Icons.Outlined.Image,
+                    isChecked = isShowingThumbnailInLockscreen,
+                    onCheckedChange = { isShowingThumbnailInLockscreen = it }
+                )
+            }
         }
     }
 }
