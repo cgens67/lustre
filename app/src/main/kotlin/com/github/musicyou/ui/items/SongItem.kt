@@ -70,6 +70,29 @@ fun TallSongItem(
 }
 
 @Composable
+fun SquareSongItem(
+    modifier: Modifier = Modifier,
+    song: Innertube.SongItem,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
+    ItemContainer(
+        modifier = modifier,
+        title = song.info?.name ?: "",
+        subtitle = "${song.authors?.joinToString("") { it.name ?: "" }} • ${song.durationText ?: ""}",
+        onClick = onClick,
+        shape = MaterialTheme.shapes.large
+    ) {
+        AsyncImage(
+            model = song.thumbnail?.size(512),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
 fun LocalSongItem(
     modifier: Modifier = Modifier,
     song: Song,
